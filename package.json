@@ -1,0 +1,17 @@
+{
+  "name": "todo-list-api-server",
+  "version": "1.0.0",
+  "description": "RESTful API server for handling your TODO list using a client of your choice",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "TODO",
+    "list",
+    "task",
+    "manager"
+  ],
+  "author": "John Georgiadis, Konstantinos Vlachantonis",
+  "license": "ISC"
+}
