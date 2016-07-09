@@ -1,6 +1,11 @@
-var express = require("express");
-var app = express();
 
+/**
+ * Applications main source code
+ * 
+ */
+var express = require("express");
+
+var app = express();
 
 var routes = require("./routes/routes.js")(app);
 
