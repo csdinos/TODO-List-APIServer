@@ -13,5 +13,18 @@
     "manager"
   ],
   "author": "John Georgiadis, Konstantinos Vlachantonis",
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/csdinos/TODO-List-APIServer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/csdinos/TODO-List-APIServer/issues"
+  },
+  "homepage": "https://github.com/csdinos/TODO-List-APIServer#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mongodb": "^2.2.0"
+  }
 }
