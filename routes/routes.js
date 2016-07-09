@@ -11,7 +11,7 @@ var appRouter = function(app) {
      * Testing route
      */
     app.get("/", function(req, res) {
-      res.send("Hello World");
+      res.end("Hello World2");
     });
 
     /**
