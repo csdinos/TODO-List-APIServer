@@ -30,8 +30,8 @@ var register = function(req,res) {
       var toBeInsert = { username: username, password: password, email: email };
 
       // TODO:
-      // check that username is longer that 4 chars,
-      // password longer that 6 chars
+      // check if username is longer that 4 chars,
+      // check if password longer that 6 chars
       // and email has an email format
       // checkParameters(toBeInsert);
 
