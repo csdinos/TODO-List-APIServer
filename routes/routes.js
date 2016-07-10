@@ -7,6 +7,9 @@ var appRouter = function(app) {
   // require the register module
   var register = require("../controllers/register.js");
 
+  // require the addTask module
+  var addTask = require("../controllers/addTask.js");
+
     /**
      * Testing route
      */
@@ -17,14 +20,30 @@ var appRouter = function(app) {
     /**
      * Register route
      * Forms parameters:
-     * username (min:4)
-     * password (min:6)
+     * username
+     * password
      * email (email format)
      */
     app.post("/register", upload.array(), function(req,res){
 
       // we use the register.js module to handle the request
       register(req,res);
+    });
+
+
+    /**
+     * add_task route
+     * Form's parameters:
+     * taskName
+     * taskDescription
+     * taskText
+     * taskDeadline
+     * created_at
+     */
+    app.post("/add_task", upload.array(), function(req,res){
+
+      // we use the addTask.js module to handle the request
+      addTask(req,res);
     });
 
 }
