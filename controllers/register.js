@@ -11,13 +11,15 @@ var register = function(req,res) {
   var mongo = require('mongodb').MongoClient;
 
   // url that we will use to connect to our db
-  var url = require("./config.js").mongodbURL;
+  var url = require("../config.js").mongodbURL;
 
   // connect to our mongodb
   mongo.connect(url, function(err, db){
 
+    if (err) throw err;
+
     // should be in place of the whole function but im too tired now and its late :D
-    handle(err,db,req,res);
+    handle(db,req,res);
   });
 
 }
@@ -30,9 +32,10 @@ module.exports = register;
  * handle - handle register request
  *
  */
-function handle(err, db, req, res) {
+function handle( db, req, res) {
 
-  if (err) throw err;
+  //require our userModel
+  var UserModel = require("../models/user.js");
 
   // get out users collection
   var usersCollection = db.collection('users');
@@ -45,17 +48,23 @@ function handle(err, db, req, res) {
   // contruct the registration object
   var toBeInsert = { username: username, password: password, email: email };
 
-  // TODO: check that email is unique
-  // parse the data through a validation
-  var validation = validate(toBeInsert);
+  // create a new user model
+  var newUser = new UserModel(toBeInsert);
 
-  // if we do have errors just return a JSON string
-  // telling folks that they messed up
-  if(validation.hasErrors){
+  // build in mongoose validation
+  var error = newUser.validateSync();
 
-    // TODO: fix the return data so as to be like the succes mode on line 72 (but with errors)
-    // bad return type..
-    res.send(JSON.stringify(validation.errors));
+  // we have to validate whether its a valid email on our own.. but im too drunk now
+  // var validator = require('validator');
+  // if( !validator.isEmail(email) ){
+  //
+  //   error.errors = {email: 'Invalid Email address'};
+  // }
+
+  // if there are errors display them and stop RIGHT THERE or there will be violence!
+  if(error){
+
+    res.json({register: 0, error: error.errors});
   }
   // else continue with the registration
   else{
@@ -69,58 +78,7 @@ function handle(err, db, req, res) {
       db.close();
 
       // return a success code
-      res.send(JSON.stringify({register: 1}));
+      res.json({register: 1});
     });
-  }
-}
-
-/**
- * validate - validate the forms parameters
- * NOTE: Maybe we should add a folder validation which will contain some modules
- * as many of the API endpoints will require validation
- *
- * @return {String}  either success or the errors
- */
-function validate(parameters){
-
-  // cool stuff happen here
-  var validator = require('validator');
-
-  var errors = [];
-  var hasErrors = false;
-
-  // set the validation rules
-  var usernameRules = { min: 4, max: 20 };
-  var passwordRules = { min: 6, max: 50 };
-
-  // check username
-  if( !validator.isLength(parameters.username, usernameRules) ){
-
-    errors.push("Username should be at least 4 characters long");
-    hasErrors = true;
-  }
-
-  // check password
-  if( !validator.isLength(parameters.password, passwordRules) ){
-
-    errors.push("Password should be at least 6 characters long");
-    hasErrors = true;
-  }
-
-  // check email (TODO: also should BE UNIQUE)
-  if( !validator.isEmail(parameters.email) ){
-
-    errors.push("Invalid Email address");
-    hasErrors = true;
-  }
-
-  if(hasErrors){
-
-    // we do have errors so we also return them
-    return { hasErrors: hasErrors, errors: errors };
-  }else{
-
-    // no errors
-    return { hasErrors: hasErrors};
   }
 }

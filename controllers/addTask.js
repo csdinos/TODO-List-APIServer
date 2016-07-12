@@ -13,13 +13,15 @@ var addTask = function(req,res) {
   var mongo = require('mongodb').MongoClient;
 
   // url that we will use to connect to our db
-  var url = require("./config.js").mongodbURL;
+  var url = require("../config.js").mongodbURL;
 
   // connect to our mongodb
   mongo.connect(url, function(err, db){
 
+    if (err) throw err;
+
     // should be in place of the whole function but im too tired now and its late :D
-    handle(err,db,req,res);
+    handle(db,req,res);
   });
 
 }
@@ -32,9 +34,10 @@ module.exports = addTask;
  * handle - handle addTask request
  *
  */
-function handle(err, db, req, res) {
+function handle(db, req, res) {
 
-  if (err) throw err;
+  //require our taskModel
+  var TaskModel = require("../models/task.js");
 
   // get out tasks collection
   var tasksCollection = db.collection('tasks');
@@ -56,19 +59,17 @@ function handle(err, db, req, res) {
     created_at: created_at
   };
 
-  // TODO: task_deadline and created_at should have the same date form
-  // parse the data through a validation
-  var validation = validate(toBeInsert);
+  // create a new task model
+  var newTask = new TaskModel(toBeInsert);
 
-  // if we do have errors just return a JSON string
-  // telling folks that they messed up
-  if(validation.hasErrors){
+  // build in mongoose validation
+  var error = newTask.validateSync();
 
-    // TODO: fix the return data so as to be like the succes mode on line 72 (but with errors)
-    // bad return type..
-    res.send(JSON.stringify(validation.errors));
+  // if there are errors display them and stop RIGHT THERE or there will be violence!
+  if(error){
+
+    res.json({add_task: 0, error: error.errors});
   }
-  // else continue with adding the new task
   else{
 
     // TODO: we also need user_id so as to know the task's owner
@@ -81,66 +82,7 @@ function handle(err, db, req, res) {
       db.close();
 
       // return a success code
-      res.send(JSON.stringify({add_task: 1}));
+      res.json({add_task: 1});
     });
-  }
-}
-
-/**
- * validate - validate the forms parameters
- * NOTE: Maybe we should add a folder validation which will contain some modules
- * as many of the API endpoints will require validation
- *
- * @return {String}  either success or the errors
- */
-function validate(parameters){
-
-  // cool stuff happen here
-  var validator = require('validator');
-
-  var errors = [];
-  var hasErrors = false;
-
-  // set the validation rules
-  var taskNameRules = { min: 4, max: 30 };
-  var taskDescriptionRules = { min: 4, max: 50 };
-  var taskTextRules = { min: 4, max: 100 };
-
-  // check taskName
-  if( !validator.isLength(parameters.taskName, taskNameRules) ){
-
-    errors.push("Task's name length should be between 4-30 characters");
-    hasErrors = true;
-  }
-
-  // check taskDescription
-  if( !validator.isLength(parameters.taskDescription, taskDescriptionRules) ){
-
-    errors.push("Task's description length should be between 4-50 characters");
-    hasErrors = true;
-  }
-
-  // check taskText
-  if( !validator.isLength(parameters.taskText, taskTextRules) ){
-
-    errors.push("Task's main text length should be between 4-50 characters");
-    hasErrors = true;
-  }
-
-  //check taskDeadline
-  if( !validator.isDate(parameters.taskDeadline) ){
-
-    errors.push("Invalid date for deadline");
-    hasErrors = true;
-  }
-
-  if(hasErrors){
-
-    // we do have errors so we also return them
-    return { hasErrors: hasErrors, errors: errors };
-  }else{
-
-    // no errors
-    return { hasErrors: hasErrors};
   }
 }

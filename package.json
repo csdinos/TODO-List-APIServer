@@ -27,6 +27,7 @@
     "email-validator": "^1.0.4",
     "express": "^4.14.0",
     "mongodb": "^2.2.0",
+    "mongoose": "^4.5.4",
     "multer": "^1.1.0",
     "validator": "^5.4.0"
   }
