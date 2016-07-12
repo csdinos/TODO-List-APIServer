@@ -11,7 +11,7 @@ var register = function(req,res) {
   var mongo = require('mongodb').MongoClient;
 
   // url that we will use to connect to our db
-  var url = 'mongodb://localhost:27017/todo';
+  var url = require("./config.js").mongodbURL;
 
   // connect to our mongodb
   mongo.connect(url, function(err, db){
