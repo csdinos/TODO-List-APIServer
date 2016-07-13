@@ -10,6 +10,9 @@ var appRouter = function(app) {
   // require the addTask module
   var addTask = require("../controllers/addTask.js");
 
+  // require the deleteTask module
+  var deleteTask = require("../controllers/deleteTask.js");
+
     /**
      * Testing route
      */
@@ -44,6 +47,18 @@ var appRouter = function(app) {
 
       // we use the addTask.js module to handle the request
       addTask(req,res);
+    });
+
+    /**
+     * delete_task route
+     * Form's parameters:
+     * task's _id
+     * user's _id? prolly not cause task's _id is unique even among users' tasks
+     */
+    app.post("/delete_task", upload.array(), function(req,res){
+
+      // we use the deleteTask.js module to handle the request
+      deleteTask(req,res);
     });
 
 }

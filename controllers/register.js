@@ -1,4 +1,11 @@
 
+// requires
+var mongo = require('mongodb').MongoClient;
+
+var url = require("../config.js").mongodbURL;
+
+var UserModel = require("../models/user.js");
+
 /**
  * Register module for handling register requests on /register
  * Request should contain the following parameters
@@ -7,11 +14,6 @@
  * email (email format + unique)
  */
 var register = function(req,res) {
-
-  var mongo = require('mongodb').MongoClient;
-
-  // url that we will use to connect to our db
-  var url = require("../config.js").mongodbURL;
 
   // connect to our mongodb
   mongo.connect(url, function(err, db){
@@ -33,9 +35,6 @@ module.exports = register;
  *
  */
 function handle( db, req, res) {
-
-  //require our userModel
-  var UserModel = require("../models/user.js");
 
   // get out users collection
   var usersCollection = db.collection('users');

@@ -1,4 +1,11 @@
 
+//requires
+var mongo = require('mongodb').MongoClient;
+
+var url = require("../config.js").mongodbURL;
+
+var TaskModel = require("../models/task.js");
+
 /**
  * addTask module for handling requests on /add_task
  * Request should contain the following parameters
@@ -9,11 +16,6 @@
  * created_at (date)
  */
 var addTask = function(req,res) {
-
-  var mongo = require('mongodb').MongoClient;
-
-  // url that we will use to connect to our db
-  var url = require("../config.js").mongodbURL;
 
   // connect to our mongodb
   mongo.connect(url, function(err, db){
@@ -35,9 +37,6 @@ module.exports = addTask;
  *
  */
 function handle(db, req, res) {
-
-  //require our taskModel
-  var TaskModel = require("../models/task.js");
 
   // get out tasks collection
   var tasksCollection = db.collection('tasks');
