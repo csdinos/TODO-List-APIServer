@@ -1,4 +1,4 @@
-var appRouter = function(app) {
+var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
 
   // require and initialize multer so as to handle the form-data of the requests
   var multer  = require('multer');
@@ -6,6 +6,9 @@ var appRouter = function(app) {
 
   // require the register module
   var register = require("../controllers/register.js");
+
+  // require the login module
+  var login = require("../controllers/login.js");
 
   // require the addTask module
   var addTask = require("../controllers/addTask.js");
@@ -16,7 +19,7 @@ var appRouter = function(app) {
     /**
      * Testing route
      */
-    app.get("/", function(req, res) {
+    apiFreeRoutes.get("/", function(req, res) {
       res.end("Hello World2");
     });
 
@@ -27,7 +30,7 @@ var appRouter = function(app) {
      * password
      * email (email format)
      */
-    app.post("/register", upload.array(), function(req,res){
+    apiFreeRoutes.post("/register", upload.array(), function(req,res){
 
       // we use the register.js module to handle the request
       register(req,res);
@@ -43,7 +46,7 @@ var appRouter = function(app) {
      * taskDeadline
      * created_at
      */
-    app.post("/add_task", upload.array(), function(req,res){
+    apiJwtRoutes.post("/add_task", upload.array(), function(req,res){
 
       // we use the addTask.js module to handle the request
       addTask(req,res);
@@ -55,10 +58,34 @@ var appRouter = function(app) {
      * task's _id
      * user's _id? prolly not cause task's _id is unique even among users' tasks
      */
-    app.post("/delete_task", upload.array(), function(req,res){
+    apiJwtRoutes.post("/delete_task", upload.array(), function(req,res){
 
       // we use the deleteTask.js module to handle the request
       deleteTask(req,res);
+    });
+
+    /**
+     * user_tasks route
+     * Form's parameters:
+     * user's _id
+     */
+    apiJwtRoutes.post("/user_tasks", upload.array(), function(req,res){
+
+      // we use the user_tasks.js module to handle the request
+      userTasks(req,res);
+    });
+
+    /**
+     * login route
+     * Form's parameters:
+     * email
+     * password
+     * (not username cause its not unique)
+     */
+    apiFreeRoutes.post("/login", upload.array(), function(req,res){
+
+      // we use the login.js module to handle the request
+      login(req,res);
     });
 
 }
