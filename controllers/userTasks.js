@@ -9,7 +9,7 @@ var url = require("../config.js").mongodbURL;
 /**
  * userTasks module for handling requests on /user_tasks
  * Request should contain the following parameters
- * user's _id
+ * JWT token
  */
 var userTasks = function(req,res) {
 
@@ -25,7 +25,7 @@ var userTasks = function(req,res) {
 }
 
 // export the module
-module.exports = deleteTask;
+module.exports = userTasks;
 
 
 /**
@@ -37,50 +37,27 @@ function handle(db, req, res) {
   // get out tasks collection
   var tasksCollection = db.collection('tasks');
 
-  var error = null;
+  // get the parameters from the request
+  // then pass it to this strange object constructor because thats how mongodb's ids
+  // like to chill
+  var taskId = new ObjectID(new ObjectID(req.decoded._id));
 
-  // check whether the task_id is passed as a parameter
-  if(req.body.task_id == null){
-    error = 'task_id is required'
-  }
+  // contruct the task object
+  var toBeSearched =
+  {
+    user_id: taskId
+  };
 
-  // if there is not then tell them and stop RIGHT THERE or there will be violence!
-  if(error){
+  // find the tasks
+  tasksCollection.find(toBeSearched).toArray(function(err, documents) {
 
-    res.json({user_tasks: 0, error: error});
-  }
-  else{
+    if(err) throw JSON.stringify({err: err});
 
-    // get the parameters from the request
-    // then pass it to this strange object constructor because thats how mongodb's ids
-    // like to chill
-    var taskId = new ObjectID(req.body.task_id);
+    // close the conenction
+    db.close();
 
-    // contruct the task object
-    var toBeRemoved =
-    {
-      _id: taskId
-    };
+    res.json(documents);
 
-    // remove the task
-    tasksCollection.remove(toBeRemoved, function(err, data) {
+  });
 
-      if(err) throw JSON.stringify({err: err});
-
-      // close the conenction
-      db.close();
-
-      // one document removed
-      if(data.result.n === 1){
-
-        res.json({remove_task: 1});
-      }
-      // otherwise its 0
-      else{
-
-        res.json({user_tasks: 0, error: 'no task with such id'});
-      }
-
-    });
-  }
 }

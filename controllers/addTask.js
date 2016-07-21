@@ -2,6 +2,8 @@
 //requires
 var mongo = require('mongodb').MongoClient;
 
+var ObjectID = require('mongodb').ObjectID;
+
 var url = require("../config.js").mongodbURL;
 
 var TaskModel = require("../models/task.js");
@@ -37,7 +39,7 @@ module.exports = addTask;
  *
  */
 function handle(db, req, res) {
-
+console.log(req);
   // get out tasks collection
   var tasksCollection = db.collection('tasks');
 
@@ -47,6 +49,7 @@ function handle(db, req, res) {
   var taskText = req.body.task_text;
   var taskDeadline = req.body.task_deadline;
   var created_at = new Date();
+  var user_id = new ObjectID(req.decoded._id); //from decoded token's data
 
   // contruct the task object
   var toBeInsert =
@@ -55,7 +58,8 @@ function handle(db, req, res) {
     taskDescription: taskDescription,
     taskText: taskText,
     taskDeadline: taskDeadline,
-    created_at: created_at
+    created_at: created_at,
+    user_id: user_id
   };
 
   // create a new task model

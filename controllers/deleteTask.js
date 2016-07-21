@@ -56,6 +56,7 @@ function handle(db, req, res) {
     // then pass it to this strange object constructor because thats how mongodb's ids
     // like to chill
     var taskId = new ObjectID(req.body.task_id);
+    var user_id = new ObjectID(req.decoded._id); //from decoded token's data
 
     // contruct the task object
     var toBeRemoved =
@@ -63,25 +64,55 @@ function handle(db, req, res) {
       _id: taskId
     };
 
-    // remove the task
-    tasksCollection.remove(toBeRemoved, function(err, data) {
+    // first find the task in order to check if its owned by this user (kids these days)
+    tasksCollection.findOne(toBeRemoved, function(err, document) {
 
       if(err) throw JSON.stringify({err: err});
 
-      // close the conenction
-      db.close();
+      // if there is a document with this _id
+      if(document){
 
-      // one document removed
-      if(data.result.n === 1){
+        //without .toString() even though the value and type of the vars are the same it gives false :/
+        if(document.user_id.toString() === user_id.toString()){
 
-        res.json({remove_task: 1});
-      }
-      // otherwise its 0
-      else{
+          // remove the task since the user has the right to do it
+          tasksCollection.remove(toBeRemoved, function(err, data){
+            
+            removeTask(err,data,db,res);
+          });
+        }
+        // got ya! its not your task -.- stop messing with our lives
+        else{
+          res.json({remove_task: 0, error: 'permission denied for this task'});
+        }
+      // else tell them that they have been bad boys
+      }else{
 
         res.json({remove_task: 0, error: 'no task with such id'});
       }
 
     });
+
   }
+}
+
+
+function removeTask(err, data, db, res) {
+
+  if(err) throw JSON.stringify({err: err});
+
+  // close the conenction
+  db.close();
+
+  // one document removed
+  if(data.result.n === 1){
+
+    res.json({remove_task: 1});
+  }
+  // otherwise its 0
+  else{
+
+    res.json({remove_task: 0, error: 'no task with such iddd'});
+  }
+
 }

@@ -4,6 +4,8 @@ var mongo = require('mongodb').MongoClient;
 
 var url = require("../config.js").mongodbURL;
 
+var bcrypt = require('bcrypt');
+
 var UserModel = require("../models/user.js");
 
 /**
@@ -41,7 +43,7 @@ function handle( db, req, res) {
 
   // get the parameters from the request
   var username = req.body.username;
-  var password = req.body.password;
+  var password = bcrypt.hashSync(req.body.password, 10); // 10 is about the salt generation
   var email = req.body.email;
 
   // contruct the registration object

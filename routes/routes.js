@@ -1,8 +1,4 @@
-var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
-
-  // require and initialize multer so as to handle the form-data of the requests
-  var multer  = require('multer');
-  var upload = multer();
+var appRouter = function(apiRoutes) {
 
   // require the register module
   var register = require("../controllers/register.js");
@@ -16,10 +12,16 @@ var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
   // require the deleteTask module
   var deleteTask = require("../controllers/deleteTask.js");
 
+  // require the userTasks module
+  var userTasks = require("../controllers/userTasks.js");
+
+  // require our middleware for JWT validation
+  var JWTMiddleware = require('../middlewares/JWTMiddleware.js');
+
     /**
      * Testing route
      */
-    apiFreeRoutes.get("/", function(req, res) {
+    apiRoutes.get("/", function(req, res) {
       res.end("Hello World2");
     });
 
@@ -30,7 +32,7 @@ var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
      * password
      * email (email format)
      */
-    apiFreeRoutes.post("/register", upload.array(), function(req,res){
+    apiRoutes.post("/register", function(req,res){
 
       // we use the register.js module to handle the request
       register(req,res);
@@ -46,7 +48,7 @@ var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
      * taskDeadline
      * created_at
      */
-    apiJwtRoutes.post("/add_task", upload.array(), function(req,res){
+    apiRoutes.post("/add_task", JWTMiddleware, function(req,res){
 
       // we use the addTask.js module to handle the request
       addTask(req,res);
@@ -58,7 +60,7 @@ var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
      * task's _id
      * user's _id? prolly not cause task's _id is unique even among users' tasks
      */
-    apiJwtRoutes.post("/delete_task", upload.array(), function(req,res){
+    apiRoutes.post("/delete_task", JWTMiddleware, function(req,res){
 
       // we use the deleteTask.js module to handle the request
       deleteTask(req,res);
@@ -69,7 +71,7 @@ var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
      * Form's parameters:
      * user's _id
      */
-    apiJwtRoutes.post("/user_tasks", upload.array(), function(req,res){
+    apiRoutes.post("/user_tasks", JWTMiddleware, function(req,res){
 
       // we use the user_tasks.js module to handle the request
       userTasks(req,res);
@@ -82,7 +84,7 @@ var appRouter = function(apiJwtRoutes, apiFreeRoutes) {
      * password
      * (not username cause its not unique)
      */
-    apiFreeRoutes.post("/login", upload.array(), function(req,res){
+    apiRoutes.post("/login", function(req,res){
 
       // we use the login.js module to handle the request
       login(req,res);

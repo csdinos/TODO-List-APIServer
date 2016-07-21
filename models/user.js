@@ -17,7 +17,7 @@ var userSchema =  new Schema({
         type: String,
         required: true,
         minlength: [6, 'Password should be at least 6 characters long'],
-        maxlength: [50, 'Password should be no more than 50 characters long'],
+        maxlength: [200, 'Password should be no more than 50 characters long'],
       },
     email:
       {

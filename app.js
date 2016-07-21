@@ -1,7 +1,3 @@
-// TODO:  REMOVE multer
-//        FINISH JWT
-//        PUT USER_ID TO TASKS
-//        DO USERTASKS
 
 /**
  * Applications main source code
@@ -20,19 +16,13 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // get an instance of the router for api routes
-var apiJwtRoutes = express.Router();
-var apiFreeRoutes = express.Router();
+var apiRoutes = express.Router();
 
-var JWTMiddleware = require('./middlewares/JWTMiddleware.js');
+// pass all our routes into apiRoutes
+var routes = require("./routes/routes.js")(apiRoutes);
 
-// route middleware to verify a token
-apiJwtRoutes.use(JWTMiddleware);
-
-var routes = require("./routes/routes.js")(apiJwtRoutes, apiFreeRoutes);
-
-// aply our routes with the prefix 'API'
-app.use('/API', apiJwtRoutes);
-app.use('/API', apiFreeRoutes);
+// put our routes under /API/
+app.use('/API', apiRoutes);
 
 var server = app.listen(port, function () {
     console.log("Listening on port %s...", server.address().port);

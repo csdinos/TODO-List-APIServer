@@ -4,6 +4,8 @@ var mongo = require('mongodb').MongoClient;
 
 var url = require("../config.js").mongodbURL;
 
+var bcrypt = require('bcrypt');
+
 var UserModel = require("../models/user.js");
 
 var secret = require("../config.js").secret;
@@ -36,7 +38,7 @@ module.exports = login;
 
 
 /**
- * handle - handle register request
+ * handle - handle login request
  *
  */
 function handle( db, req, res) {
@@ -45,40 +47,38 @@ function handle( db, req, res) {
   var usersCollection = db.collection('users');
 
   // get the parameters from the request
+  // TODO: parameter validation
   var password = req.body.password;
   var email = req.body.email;
 
-  // build in mongoose validation
-  var error = null//newUser.validateSync();
+  var error = null;
 
-  // we have to validate whether its a valid email on our own.. but im too drunk now
-  // var validator = require('validator');
-  // if( !validator.isEmail(email) ){
-  //
-  //   error.errors = {email: 'Invalid Email address'};
-  // }
+  // check whether the task_id is passed as a parameter
+  if(password == null || email == null){
+    error = 'missing parameters'
+  }
 
   // if there are errors display them and stop RIGHT THERE or there will be violence!
   if(error){
 
     res.json({register: 0, error: error.errors});
   }
-  // else continue with the registration
+  // else continue with the login
   else{
 
-    // insert the new user
     // find the user
     usersCollection.findOne({ email: email }, function(err, user) {
 
       if (err) throw err;
 
       if (!user) {
-        res.json({ login: 0, message: 'Authentication failed. User not found.' });
+        res.json({ login: 0, message: 'Authentication failed. Incorrect creds.' });
       } else if (user) {
 
         // check if password matches
-        if (user.password != password) {
-          res.json({ login: 0, message: 'Authentication failed. Wrong password.' });
+        if (!bcrypt.compareSync(password, user.password)) {
+          
+          res.json({ login: 0, message: 'Authentication failed. Incorrect creds.' });
         } else {
 
           // if user is found and password is right
